@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 
+// Type Initialization
 interface UserStore {
     fullname: string;
     email: string;

@@ -2,9 +2,10 @@ import { useEffect, useState } from 'react';
 import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { useSignUpForm } from './store';
 import axios from 'axios';
-import { Edit, Trash } from 'lucide-react'
+import { Edit, Trash, Search } from 'lucide-react'
 
 function App() {
+  // UserStore (Zustand)
   const { fullname, 
           email, 
           password, 
@@ -13,8 +14,12 @@ function App() {
           setEmail, 
           setPassword, 
           setUserData } = useSignUpForm();
+  // Status Message
   const [statusMsg, 
         setStatusMsg] = useState('');
+
+  // Search Bar
+  const [search, setSearch] = useState('');
   
   // Create a user
   const onSignUpHandler = () => {
@@ -68,7 +73,12 @@ function App() {
     });
   }
 
-  // Run's for every runtime.
+  // Search
+  const onSearchBar = (e: any) => {
+    setSearch(e.target.value);
+  }
+
+  // Run's every runtime.
   useEffect(() => {
       fetchUsers();
   }, []);
@@ -116,8 +126,26 @@ function App() {
 
       {/* Table Display Container */}
       <div className="border rounded-3 p-4 shadow-lg flex-grow-1">
-        <h2 className='h2'>Users account</h2>
-        <p className="mb-4">List of users account in the system.</p>
+        <div className='d-flex justify-content-between align-items-center'>
+          {/* Header Title */}
+          <div>
+            <h2 className='h2'>Users account</h2>
+            <p className="mb-4">List of users account in the system.</p>
+          </div>
+
+          {/* Search Bar */}
+          <div>
+            <div className="input-group mb-3">
+              <div className="input-group-prepend">
+                <span className="input-group-text" id="basic-addon1"> 
+                  <Search width={20}/>
+                </span>
+              </div>
+              <input value={search} onChange={(text) => onSearchBar(text)} type="search" className="form-control" placeholder="Search a user" aria-label="Username" aria-describedby="basic-addon1"/>
+            </div>
+          </div>
+        </div>
+
         <table className="table">
           <thead>
             <tr>
