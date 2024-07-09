@@ -31,7 +31,7 @@ function App() {
   // Fetch Users
   const fetchUsers = () => {
     axios.get("http://localhost:5001/get-users")
-    .then((res) => { setUserData(res.data.result) })
+    .then((res) => { setUserData(res.data.result.reverse()) })
     .catch((error) => { console.log(error) });
   }
 
