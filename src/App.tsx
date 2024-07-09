@@ -5,6 +5,7 @@ import axios from 'axios';
 import { Edit, Trash, Search } from 'lucide-react'
 
 function App() {
+
   // UserStore (Zustand)
   const { fullname, 
           email, 
@@ -14,6 +15,7 @@ function App() {
           setEmail, 
           setPassword, 
           setUserData } = useSignUpForm();
+
   // Status Message
   const [statusMsg, 
         setStatusMsg] = useState('');
@@ -50,7 +52,10 @@ function App() {
   // Delete a User
   const onDeleteUser = (id: string) => {
     axios.delete(`http://localhost:5001/delete-user/${id}`)
-    .then((res) => { fetchUsers() })
+    .then((res) => { 
+      fetchUsers();
+      console.log(res.data);
+    })
     .catch((error) => { console.log(error) });
   }
 
@@ -67,6 +72,7 @@ function App() {
     })
     .then((res) => {
       fetchUsers();
+      console.log(res.data);
     })
     .catch((error) => {
       console.log(error) 
@@ -75,6 +81,7 @@ function App() {
 
   // Search
   const onSearchBar = (e: any) => {
+    const searchTerm = e.target.value;
     setSearch(e.target.value);
   }
 
@@ -84,7 +91,7 @@ function App() {
   }, []);
   
   return (
-    <div className="w-100 vh-100 d-flex justify-content-around align-items-center p-4 gap-3 flex-wrap small">
+    <div className="w-100 vh-100 d-flex justify-content-around align-items-start p-4 gap-3 flex-wrap small">
       {/* Create account form */}
       <div className="border rounded-3 p-4 shadow-lg">
         <h2 className='h2'>Create account</h2>
