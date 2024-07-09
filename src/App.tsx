@@ -5,9 +5,16 @@ import axios from 'axios';
 import { Edit, Trash } from 'lucide-react'
 
 function App() {
-
-  const { fullname, email, password, userData, setFullname, setEmail, setPassword, setUserData } = useSignUpForm();
-  const [statusMsg, setStatusMsg] = useState('');
+  const { fullname, 
+          email, 
+          password, 
+          userData, 
+          setFullname, 
+          setEmail, 
+          setPassword, 
+          setUserData } = useSignUpForm();
+  const [statusMsg, 
+        setStatusMsg] = useState('');
   
   // Create a user
   const onSignUpHandler = () => {
@@ -61,6 +68,7 @@ function App() {
     });
   }
 
+  // Run's for every runtime.
   useEffect(() => {
       fetchUsers();
   }, []);
@@ -153,7 +161,7 @@ function App() {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default App;
