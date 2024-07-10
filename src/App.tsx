@@ -1,8 +1,19 @@
 import { useEffect, useState } from 'react';
 import { useSignUpForm } from './store';
 import axios from 'axios';
-import { Edit, Trash, Search } from 'lucide-react'
-import { Container, Box, Typography, TextField, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { Edit, Trash } from 'lucide-react'
+import { Container, 
+         Box, 
+         Typography, 
+         TextField, 
+         Button, 
+         TableContainer, 
+         Table, 
+         TableHead, 
+         TableRow, 
+         TableCell, 
+         TableBody, 
+         Alert } from '@mui/material';
 import { SearchRounded } from '@mui/icons-material';
 
 function App() {
@@ -18,11 +29,21 @@ function App() {
           setUserData } = useSignUpForm();
 
   // Status Message
-  const [statusMsg, 
-        setStatusMsg] = useState('');
+  const [statusMsg, setStatusMsg] = useState('');
+  const [statusBoolean, setStatusBoolean] = useState('');
 
   // Search Bar
   const [search, setSearch] = useState('');
+
+  const alertStatus = (status: boolean, message: string) => {
+    setStatusMsg(message);
+    if(status){
+      setStatusBoolean("success")
+    }
+    else {
+      setStatusBoolean("error");
+    }
+  }
   
   // Create a user
   const onSignUpHandler = () => {
@@ -32,11 +53,13 @@ function App() {
       password: password
     })
     .then((res) => {
-      setStatusMsg(res.data.message);
+      alertStatus(res.data.success, res.data.message);
       fetchUsers();
-      setFullname('');
-      setEmail('');
-      setPassword('');
+      if(res.data.success){
+        setFullname('');
+        setEmail('');
+        setPassword('');
+      }
     })
     .catch((error) => {
       console.log(error);
@@ -98,13 +121,13 @@ function App() {
 
         <Box sx={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', gap: 2}}>
           {/* Fullname */}
-          <TextField value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="outlined-basic" label="Fullname" variant="outlined" />
+          <TextField error={statusBoolean === 'error' && fullname.length === 0} value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="outlined-basic" label="Fullname" variant="outlined" />
 
           {/* Email */}
-          <TextField value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="outlined-basic" label="Email address" variant="outlined" />
+          <TextField error={statusBoolean === 'error' && email.length === 0} value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="outlined-basic" label="Email address" variant="outlined" />
         
           {/* Password */}
-          <TextField value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="outlined-basic" label="Password" variant="outlined" />
+          <TextField error={statusBoolean === 'error' && password.length === 0}  value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="outlined-basic" label="Password" variant="outlined" />
         </Box>
 
         {/* Add Button */}
@@ -113,14 +136,18 @@ function App() {
         </Box>
 
         {/* Status Message */}
-        <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        {/* <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
           <Typography sx={{mt: 3, textAlign: 'center'}} variant='subtitle2'>{statusMsg}</Typography>
-        </Box>
+        </Box> */}
+
+         <Alert sx={{mt: 3}} severity={statusBoolean}>
+            {statusMsg}
+        </Alert>
       </Box>
 
       {/* Table Display Container */}
-      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, flexGrow: 1}}>
-        <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
+      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, flexGrow: 1,}}>
+        <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10}}>
           {/* Header Title */}
           <Box>
             <Typography variant='h4'>Users account</Typography>
@@ -128,15 +155,16 @@ function App() {
           </Box>
 
           {/* Search Bar */}
-          <Box sx={{ display: 'flex', alignItems: 'center', }}>
+          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1}}>
             <SearchRounded sx={{ mr: 1, my: 0.5 }} />
-            <TextField value={search} onChange={(e) => setSearch(e.target.value)} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
+            <TextField  value={search} onChange={(e) => setSearch(e.target.value)} sx={{width: '100%'}} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
           </Box>
         </Box>
 
         {/* TABLE */}
         <TableContainer sx={{mt: 2}}>
           <Table>
+            {/* Table header */}
             <TableHead>
               <TableRow>
                 <TableCell>#</TableCell>
@@ -145,8 +173,9 @@ function App() {
                 <TableCell sx={{fontWeight: 'bold'}}  align="left">Actions</TableCell>
               </TableRow>
             </TableHead>
+            {/* Table body */}
             <TableBody>
-              {
+              { 
                 userData.map((row: any, index: number) => (
                   <TableRow>
                     <TableCell>{index+1}</TableCell>
@@ -165,6 +194,16 @@ function App() {
                     </TableCell>
                   </TableRow>
                 ))
+              }
+              {
+                userData.length === 0 && (
+                  <TableRow>
+                    <TableCell></TableCell>
+                    <TableCell></TableCell>
+                    <TableCell>No users found in the list.</TableCell>
+                    <TableCell></TableCell>
+                  </TableRow>
+                )
               }
             </TableBody>
           </Table>
