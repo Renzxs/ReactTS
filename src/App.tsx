@@ -44,7 +44,11 @@ function App() {
 
   // Fetch Users
   const fetchUsers = () => {
-    axios.get("http://localhost:5001/get-users")
+    axios.get("http://localhost:5001/get-users", {
+      params: {
+        searchFullName: search
+      }
+    })
     .then((res) => { setUserData(res.data.result.reverse()) })
     .catch((error) => { console.log(error) });
   }
@@ -79,16 +83,10 @@ function App() {
     });
   }
 
-  // Search
-  const onSearchBar = (e: any) => {
-    const searchTerm = e.target.value;
-    setSearch(e.target.value);
-  }
-
   // Run's every runtime.
   useEffect(() => {
       fetchUsers();
-  }, []);
+  }, [search]);
   
   return (
     <div className="w-100 vh-100 d-flex justify-content-around align-items-start p-4 gap-3 flex-wrap small">
@@ -148,7 +146,7 @@ function App() {
                   <Search width={20}/>
                 </span>
               </div>
-              <input value={search} onChange={(text) => onSearchBar(text)} type="search" className="form-control" placeholder="Search a user" aria-label="Username" aria-describedby="basic-addon1"/>
+              <input value={search} onChange={(e) => setSearch(e.target.value)} type="search" className="form-control" placeholder="Search a user" aria-label="Username" aria-describedby="basic-addon1"/>
             </div>
           </div>
         </div>
