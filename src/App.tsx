@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import '../node_modules/bootstrap/dist/css/bootstrap.min.css';
 import { useSignUpForm } from './store';
 import axios from 'axios';
 import { Edit, Trash, Search } from 'lucide-react'
+import { Container, Box, Typography, TextField, Button, TableContainer, Table, TableHead, TableRow, TableCell, TableBody } from '@mui/material';
+import { SearchRounded } from '@mui/icons-material';
 
 function App() {
 
@@ -89,111 +90,91 @@ function App() {
   }, [search]);
   
   return (
-    <div className="w-100 vh-100 d-flex justify-content-around align-items-start p-4 gap-3 flex-wrap small">
+    <Container sx={{width: '100%', height: '100vh', display: 'flex', alignItems: 'flex-start' , justifyContent: 'center', padding: 4, gap: 3, flexWrap: 'wrap'}}>
       {/* Create account form */}
-      <div className="border rounded-3 p-4 shadow-lg">
-        <h2 className='h2'>Create account</h2>
-        <p className="mb-4">Please fill all the fields below.</p>
-        {/* Fullname */}
-        <div className="input-group mb-3">
-          <div className="input-group-prepend">
-            <span className="input-group-text" id="basic-addon1">@</span>
-          </div>
-          <input value={fullname} onChange={(e) => setFullname(e.target.value)} required type="text" className="form-control" placeholder="Fullname*" aria-label="Username" aria-describedby="basic-addon1"/>
-        </div>
+      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, width: '30%'}}>
+        <Typography variant='h4'>Create account</Typography>
+        <Typography variant='subtitle2' sx={{mb: 3}}>Please fill all the fields below.</Typography>
 
-        {/* Email */}
-        <div className="input-group mb-3">
-          <input value={email} onChange={(e) => setEmail(e.target.value)} required type="text" className="form-control" placeholder="Email address*" aria-label="Email" aria-describedby="basic-addon2"/>
-          <div className="input-group-append">
-            <span className="input-group-text" id="basic-addon2">@example.com</span>
-          </div>
-        </div>
+        <Box sx={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', gap: 2}}>
+          {/* Fullname */}
+          <TextField value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="outlined-basic" label="Fullname" variant="outlined" />
 
-        {/* Password */}
-        <div className="input-group mb-3">
-          <div className="input-group-prepend">
-            <span className="input-group-text" id="basic-addon1">*</span>
-          </div>
-          <input value={password} onChange={(e) => setPassword(e.target.value)} required type="password" className="form-control" placeholder="Password*" aria-label="Username" aria-describedby="basic-addon1"/>
-        </div>
+          {/* Email */}
+          <TextField value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="outlined-basic" label="Email address" variant="outlined" />
+        
+          {/* Password */}
+          <TextField value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="outlined-basic" label="Password" variant="outlined" />
+        </Box>
 
         {/* Add Button */}
-        <div className='mt-4'>
-          <button onClick={onSignUpHandler} className="btn btn-success w-100">Add Account</button>
-        </div>
+        <Box sx={{mt: 3}}>
+          <Button onClick={onSignUpHandler} variant='contained' sx={{textTransform: 'none', width: '100%'}}>Add Account</Button>
+        </Box>
 
         {/* Status Message */}
-        <div className='w-100 text-center d-flex justify-content-center'>
-          <p className='mt-3 w-75 text-center'>{statusMsg}</p>
-        </div>
-      </div>
+        <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+          <Typography sx={{mt: 3, textAlign: 'center'}} variant='subtitle2'>{statusMsg}</Typography>
+        </Box>
+      </Box>
 
       {/* Table Display Container */}
-      <div className="border rounded-3 p-4 shadow-lg flex-grow-1">
-        <div className='d-flex justify-content-between align-items-center'>
+      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, flexGrow: 1}}>
+        <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center'}}>
           {/* Header Title */}
-          <div>
-            <h2 className='h2'>Users account</h2>
-            <p className="mb-4">List of users account in the system.</p>
-          </div>
+          <Box>
+            <Typography variant='h4'>Users account</Typography>
+            <Typography variant='subtitle2'>List of users account in the system.</Typography>
+          </Box>
 
           {/* Search Bar */}
-          <div>
-            <div className="input-group mb-3">
-              <div className="input-group-prepend">
-                <span className="input-group-text" id="basic-addon1"> 
-                  <Search width={20}/>
-                </span>
-              </div>
-              <input value={search} onChange={(e) => setSearch(e.target.value)} type="search" className="form-control" placeholder="Search a user" aria-label="Username" aria-describedby="basic-addon1"/>
-            </div>
-          </div>
-        </div>
+          <Box sx={{ display: 'flex', alignItems: 'center', }}>
+            <SearchRounded sx={{ mr: 1, my: 0.5 }} />
+            <TextField value={search} onChange={(e) => setSearch(e.target.value)} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
+          </Box>
+        </Box>
 
-        <table className="table">
-          <thead>
-            <tr>
-              <th scope="col">#</th>
-              <th scope="col">Fullname</th>
-              <th scope="col">Email</th>
-              <th scope="col">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {userData.length !== 0 ? 
-              userData.map((user: any, index: number) => (
-                <tr key={index}>
-                  <th scope="row">{index+1}</th>
-                  <td>{user.fullname}</td>
-                  <td>{user.email}</td>
-                  <td className="d-flex align-items-center gap-2">
-                    <button onClick={() => onUpdateUser(user.id)} className='btn btn-primary d-flex justify-content-around align-items-center gap-1'>
-                      <Edit width={20}/>
-                      Edit
-                    </button>
-                    <button onClick={() => onDeleteUser(user.id)} className='btn btn-danger d-flex justify-content-around align-items-center gap-1'>
-                      <Trash width={20}/>
-                      Delete
-                    </button>
-                  </td>
-                </tr>
-              ))
-              :
-              <tr>
-                <th scope="row"></th>
-                <td></td>
-                <td>No users found.</td>
-                <td></td>
-              </tr>
-            }
-          </tbody>
-        </table>
-        <div className='d-flex justify-content-end'>
-          <p className='small'>Showing {userData.length} of {userData.length} in {userData.length} entries.</p>
-        </div>
-      </div>
-    </div>
+        {/* TABLE */}
+        <TableContainer sx={{mt: 2}}>
+          <Table>
+            <TableHead>
+              <TableRow>
+                <TableCell>#</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}} align="left">Fullname</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}  align="left">Email Adress</TableCell>
+                <TableCell sx={{fontWeight: 'bold'}}  align="left">Actions</TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {
+                userData.map((row: any, index: number) => (
+                  <TableRow>
+                    <TableCell>{index+1}</TableCell>
+                    <TableCell>{row.fullname}</TableCell>
+                    <TableCell>{row.email}</TableCell>
+                    <TableCell sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                      <Button onClick={() => onUpdateUser(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#009d00', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: 'green'}}}>
+                        <Edit width={20}/>
+                        Edit
+                      </Button>
+
+                      <Button onClick={() => onDeleteUser(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#c40000', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: '#b10000'}}}>
+                        <Trash width={20}/>
+                        Delete
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              }
+            </TableBody>
+          </Table>
+        </TableContainer>
+
+        <Box sx={{display:'flex', justifyContent: 'flex-end', mt: 2}} className='d-flex justify-content-end'>
+          <Typography variant='subtitle2' sx={{color:'gray'}}>Showing {userData.length} of {userData.length} in {userData.length} entries.</Typography>
+        </Box>
+      </Box>
+    </Container>
   );
 }
 
