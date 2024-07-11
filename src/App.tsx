@@ -13,7 +13,8 @@ import { Container,
          TableRow, 
          TableCell, 
          TableBody, 
-         Alert } from '@mui/material';
+         Alert, 
+         Modal} from '@mui/material';
 import { SearchRounded } from '@mui/icons-material';
 
 function App() {
@@ -28,6 +29,9 @@ function App() {
           setPassword, 
           setUserData } = useSignUpForm();
 
+  // Current user
+  const [currentUserID, setCurrentUserID] = useState('');
+
   // Status Message
   const [statusMsg, setStatusMsg] = useState('');
   const [statusBoolean, setStatusBoolean] = useState('');
@@ -35,6 +39,46 @@ function App() {
   // Search Bar
   const [search, setSearch] = useState('');
 
+  // Modals
+  const [UpdateModal, setUpdateModal] = useState(false);
+  const openUpdateModal = (id: any) => {
+    axios.get("http://localhost:5001/get-users", {
+      params: {
+        getUserByID: id
+      }
+    })
+    .then((res) => {
+      setFullname(res.data.result.fullname);
+      setEmail(res.data.result.email);
+      setPassword(res.data.result.password);
+      setUpdateModal(true);
+      setStatusMsg('');
+      setStatusBoolean('');
+      setCurrentUserID(id);
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+  }
+  const closeUpdateModal = () => {
+    setUpdateModal(false);
+    setFullname('');
+    setEmail('');
+    setPassword('');
+    setStatusMsg('');
+    setStatusBoolean('');
+  } 
+
+  const [DeleteModal, setDeleteModal] = useState(false);
+  const openDeleteModal = (id: any) => {
+    setCurrentUserID(id);
+    setDeleteModal(true);
+  }
+  const closeDeleteModal = () => {
+    setDeleteModal(false);
+  }
+
+  // Alert Status
   const alertStatus = (status: boolean, message: string) => {
     setStatusMsg(message);
     if(status){
@@ -78,29 +122,35 @@ function App() {
   }
 
   // Delete a User
-  const onDeleteUser = (id: string) => {
-    axios.delete(`http://localhost:5001/delete-user/${id}`)
+  const onDeleteUser = () => {
+    axios.delete(`http://localhost:5001/delete-user/${currentUserID}`)
     .then((res) => { 
       fetchUsers();
+      setDeleteModal(false);
       console.log(res.data);
     })
     .catch((error) => { console.log(error) });
   }
 
   // Update a user
-  const onUpdateUser = (id: string) => {
-    const updatedFullname = prompt("Enter a new fullname");
-    const updatedEmail = prompt("Enter a new email address");
-    const updatedPassword = prompt("Enter a new password");
-
-    axios.put(`http://localhost:5001/edit-user/${id}`, {
-      fullname: updatedFullname,
-      email: updatedEmail,
-      password: updatedPassword
+  const onUpdateUser = () => {
+    axios.put(`http://localhost:5001/edit-user/${currentUserID}`, {
+      fullname: fullname,
+      email: email,
+      password: password
     })
     .then((res) => {
-      fetchUsers();
-      console.log(res.data);
+      if(res.data.success) {
+        setUpdateModal(false);
+        alertStatus(res.data.success, res.data.message);
+        fetchUsers();
+        setFullname('');
+        setEmail('');
+        setPassword('');
+      }
+      else {
+        alertStatus(res.data.success, res.data.message);
+      }
     })
     .catch((error) => {
       console.log(error) 
@@ -113,107 +163,150 @@ function App() {
   }, [search]);
   
   return (
-    <Container sx={{width: '100%', height: '100vh', display: 'flex', alignItems: 'flex-start' , justifyContent: 'center', padding: 4, gap: 3, flexWrap: 'wrap'}}>
-      {/* Create account form */}
-      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, width: '30%'}}>
-        <Typography variant='h4'>Create account</Typography>
-        <Typography variant='subtitle2' sx={{mb: 3}}>Please fill all the fields below.</Typography>
+    <>
+      <Container sx={{width: '100%', height: '100vh', display: 'flex', alignItems: 'flex-start' , justifyContent: 'center', padding: 4, gap: 3, flexWrap: 'wrap'}}>
+        {/* Create account form */}
+        <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, width: '30%'}}>
+          <Typography variant='h4'>Create account</Typography>
+          <Typography variant='subtitle2' sx={{mb: 3}}>Please fill all the fields below.</Typography>
 
-        <Box sx={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', gap: 2}}>
-          {/* Fullname */}
-          <TextField error={statusBoolean === 'error' && fullname.length === 0} value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="outlined-basic" label="Fullname" variant="outlined" />
+          <Box sx={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', gap: 2}}>
+            {/* Fullname */}
+            <TextField error={statusBoolean === 'error' && fullname.length === 0} value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="fullname" label="Fullname" variant="outlined" />
 
-          {/* Email */}
-          <TextField error={statusBoolean === 'error' && email.length === 0} value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="outlined-basic" label="Email address" variant="outlined" />
-        
-          {/* Password */}
-          <TextField error={statusBoolean === 'error' && password.length === 0}  value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="outlined-basic" label="Password" variant="outlined" />
-        </Box>
-
-        {/* Add Button */}
-        <Box sx={{mt: 3}}>
-          <Button onClick={onSignUpHandler} variant='contained' sx={{textTransform: 'none', width: '100%'}}>Add Account</Button>
-        </Box>
-
-        {/* Status Message */}
-        {/* <Box sx={{width: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-          <Typography sx={{mt: 3, textAlign: 'center'}} variant='subtitle2'>{statusMsg}</Typography>
-        </Box> */}
-
-         <Alert sx={{mt: 3}} severity={statusBoolean}>
-            {statusMsg}
-        </Alert>
-      </Box>
-
-      {/* Table Display Container */}
-      <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, flexGrow: 1,}}>
-        <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10}}>
-          {/* Header Title */}
-          <Box>
-            <Typography variant='h4'>Users account</Typography>
-            <Typography variant='subtitle2'>List of users account in the system.</Typography>
+            {/* Email */}
+            <TextField error={statusBoolean === 'error' && email.length === 0} value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="email" label="Email address" variant="outlined" />
+          
+            {/* Password */}
+            <TextField error={statusBoolean === 'error' && password.length === 0}  value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="password" label="Password" variant="outlined" />
           </Box>
 
-          {/* Search Bar */}
-          <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1}}>
-            <SearchRounded sx={{ mr: 1, my: 0.5 }} />
-            <TextField  value={search} onChange={(e) => setSearch(e.target.value)} sx={{width: '100%'}} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
+          {/* Add Button */}
+          <Box sx={{mt: 3}}>
+            <Button onClick={onSignUpHandler} variant='contained' sx={{textTransform: 'none', width: '100%'}}>Add Account</Button>
+          </Box>
+
+          {/* Status Message */}
+          <Alert sx={{mt: 3}} severity={statusBoolean}>
+              {statusMsg}
+          </Alert>
+        </Box>
+
+        {/* Table Display Container */}
+        <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, flexGrow: 1,}}>
+          <Box sx={{display: 'flex', justifyContent: 'space-between', alignItems: 'center', gap: 10 }}>
+            {/* Header Title */}
+            <Box>
+              <Typography variant='h4'>Users account</Typography>
+              <Typography variant='subtitle2'>List of users account in the system.</Typography>
+            </Box>
+
+            {/* Search Bar */}
+            <Box sx={{ display: 'flex', alignItems: 'center', flexGrow: 1}}>
+              <SearchRounded sx={{ mr: 1, my: 0.5 }} />
+              <TextField  value={search} onChange={(e) => setSearch(e.target.value)} sx={{width: '100%'}} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
+            </Box>
+          </Box>
+
+          {/* TABLE */}
+          <TableContainer sx={{mt: 2}}>
+            <Table>
+              {/* Table header */}
+              <TableHead>
+                <TableRow>
+                  <TableCell>#</TableCell>
+                  <TableCell sx={{fontWeight: 'bold'}} align="left">Fullname</TableCell>
+                  <TableCell sx={{fontWeight: 'bold'}}  align="left">Email Adress</TableCell>
+                  <TableCell sx={{fontWeight: 'bold'}}  align="left">Actions</TableCell>
+                </TableRow>
+              </TableHead>
+              {/* Table body */}
+              <TableBody>
+                { 
+                  // Data Table
+                  userData.map((row: any, index: number) => (
+                    <TableRow key={index}>
+                      <TableCell>{index+1}</TableCell>
+                      <TableCell>{row.fullname}</TableCell>
+                      <TableCell>{row.email}</TableCell>
+                      <TableCell sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                        <Button onClick={() => openUpdateModal(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#009d00', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: 'green'}}}>
+                          <Edit width={20}/>
+                          Edit
+                        </Button>
+
+                        <Button onClick={(() => openDeleteModal(row.id))} variant='contained' sx={{textTransform: 'none', bgcolor: '#c40000', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: '#b10000'}}}>
+                          <Trash width={20}/>
+                          Delete
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                }
+                {
+                  // No users found
+                  userData.length === 0 && (
+                    <TableRow>
+                      <TableCell></TableCell>
+                      <TableCell></TableCell>
+                      <TableCell>No users found in the list.</TableCell>
+                      <TableCell></TableCell>
+                    </TableRow>
+                  )
+                }
+              </TableBody>
+            </Table>
+          </TableContainer>
+
+          <Box sx={{display:'flex', justifyContent: 'flex-end', mt: 2}} className='d-flex justify-content-end'>
+            <Typography variant='subtitle2' sx={{color:'gray'}}>Showing {userData.length} of {userData.length} in {userData.length} entries.</Typography>
           </Box>
         </Box>
+      </Container>
 
-        {/* TABLE */}
-        <TableContainer sx={{mt: 2}}>
-          <Table>
-            {/* Table header */}
-            <TableHead>
-              <TableRow>
-                <TableCell>#</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}} align="left">Fullname</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}  align="left">Email Adress</TableCell>
-                <TableCell sx={{fontWeight: 'bold'}}  align="left">Actions</TableCell>
-              </TableRow>
-            </TableHead>
-            {/* Table body */}
-            <TableBody>
-              { 
-                userData.map((row: any, index: number) => (
-                  <TableRow>
-                    <TableCell>{index+1}</TableCell>
-                    <TableCell>{row.fullname}</TableCell>
-                    <TableCell>{row.email}</TableCell>
-                    <TableCell sx={{display: 'flex', alignItems: 'center', gap: 1}}>
-                      <Button onClick={() => onUpdateUser(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#009d00', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: 'green'}}}>
-                        <Edit width={20}/>
-                        Edit
-                      </Button>
+      {/* Update Modal */}
+      <Modal open={UpdateModal} onClose={closeUpdateModal} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Box sx={{bgcolor: 'white', boxShadow: 2, borderRadius: 3, padding: 4, width: '30%'}}>
+          <Typography variant='h4'>Edit account</Typography>
+          <Typography variant='subtitle2' sx={{mb: 3}}>Update or modify the user account here.</Typography>
 
-                      <Button onClick={() => onDeleteUser(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#c40000', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: '#b10000'}}}>
-                        <Trash width={20}/>
-                        Delete
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                ))
-              }
-              {
-                userData.length === 0 && (
-                  <TableRow>
-                    <TableCell></TableCell>
-                    <TableCell></TableCell>
-                    <TableCell>No users found in the list.</TableCell>
-                    <TableCell></TableCell>
-                  </TableRow>
-                )
-              }
-            </TableBody>
-          </Table>
-        </TableContainer>
+          <Box sx={{display: 'flex', justifyContent: 'flex-start', flexDirection: 'column', gap: 2}}>
+            {/* Fullname */}
+            <TextField error={statusBoolean === 'error' && fullname.length === 0} value={fullname} onChange={(e) => setFullname(e.target.value)} required type='text' size='small' id="update-fullname" label="Fullname" variant="outlined" />
 
-        <Box sx={{display:'flex', justifyContent: 'flex-end', mt: 2}} className='d-flex justify-content-end'>
-          <Typography variant='subtitle2' sx={{color:'gray'}}>Showing {userData.length} of {userData.length} in {userData.length} entries.</Typography>
+            {/* Email */}
+            <TextField error={statusBoolean === 'error' && email.length === 0} value={email} onChange={(e) => setEmail(e.target.value)} required type='email' size='small' id="update-email" label="Email" variant="outlined" />
+          
+            {/* Password */}
+            <TextField error={statusBoolean === 'error' && password.length === 0}  value={password} onChange={(e) => setPassword(e.target.value)} required type='password' size='small' id="update-password" label="Password" variant="outlined" />
+          </Box>
+
+          {/* Add Button */}
+          <Box sx={{mt: 3}}>
+            <Button onClick={() => onUpdateUser()} variant='contained' sx={{textTransform: 'none', width: '100%',  bgcolor: '#009d00', ":hover": {bgcolor: 'green'}}}>Save changes</Button>
+          </Box>
+
+          {/* Status Message */}
+          <Alert sx={{mt: 3}} severity={statusBoolean}>
+              {statusMsg}
+          </Alert>
         </Box>
-      </Box>
-    </Container>
+      </Modal>
+
+      {/* Delete Modal */}
+      <Modal open={DeleteModal} onClose={closeDeleteModal} sx={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
+        <Box sx={{bgcolor: 'white', boxShadow: 2, borderRadius: 3, padding: 4, width: '30%', display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center'}}>
+          <Typography variant='h5'>Are you sure to delete this user?</Typography>
+
+          {/* Add Button */}
+          <Box sx={{mt: 3, display: 'flex', justifyContent: 'center', alignItems: 'center', gap: 2}}>
+            <Button onClick={() => setDeleteModal(false)} variant='outlined' sx={{textTransform: 'none', flexGrow: 1}}>Cancel</Button>
+            <Button onClick={() => onDeleteUser()} variant='contained' sx={{textTransform: 'none', bgcolor: '#c40000', ":hover": {bgcolor: '#b10000'}, flexGrow: 1}}>Delete</Button>
+          </Box>
+        </Box>
+      </Modal>
+
+    </>
   );
 }
 
