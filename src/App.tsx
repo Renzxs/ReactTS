@@ -40,6 +40,7 @@ function App() {
   const [search, setSearch] = useState('');
 
   // Modals
+  // Update Modal
   const [UpdateModal, setUpdateModal] = useState(false);
   const openUpdateModal = (id: any) => {
     axios.get("http://localhost:5001/get-users", {
@@ -68,7 +69,7 @@ function App() {
     setStatusMsg('');
     setStatusBoolean('');
   } 
-
+  // Delete Modal
   const [DeleteModal, setDeleteModal] = useState(false);
   const openDeleteModal = (id: any) => {
     setCurrentUserID(id);
@@ -163,10 +164,11 @@ function App() {
   }, [search]);
   
   return (
-    <>
+    // Main Container
+    <> 
       <Container sx={{width: '100%', height: '100vh', display: 'flex', alignItems: 'flex-start' , justifyContent: 'center', padding: 4, gap: 3, flexWrap: 'wrap'}}>
         {/* Create account form */}
-        <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, width: '30%'}}>
+        <Box sx={{boxShadow: 2, borderRadius: 3, padding: 4, width: { lg: '30%', md: '80%', sm: '80%'}}}>
           <Typography variant='h4'>Create account</Typography>
           <Typography variant='subtitle2' sx={{mb: 3}}>Please fill all the fields below.</Typography>
 
@@ -229,7 +231,7 @@ function App() {
                       <TableCell>{index+1}</TableCell>
                       <TableCell>{row.fullname}</TableCell>
                       <TableCell>{row.email}</TableCell>
-                      <TableCell sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                      <TableCell sx={{display: 'flex', alignItems: 'center', gap: 1, flexWrap: 'wrap'}}>
                         <Button onClick={() => openUpdateModal(row.id)} variant='contained' sx={{textTransform: 'none', bgcolor: '#009d00', display:'flex', justifyContent: 'center', alignItems: 'center', gap: 1 ,":hover": {bgcolor: 'green'}}}>
                           <Edit width={20}/>
                           Edit
@@ -305,7 +307,6 @@ function App() {
           </Box>
         </Box>
       </Modal>
-
     </>
   );
 }
