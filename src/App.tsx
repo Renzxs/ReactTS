@@ -200,7 +200,7 @@ function App() {
               <Typography variant='subtitle2' sx={{fontSize: '12px'}}>List of users account in the system.</Typography>
             </Box>
 
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 0.5, justifyContent: 'flex-end'}}>
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, flexGrow: 0.5, justifyContent: 'flex-end', flexWrap:'wrap'}}>
               {/* Search Bar */}
               <Box sx={{ display: 'flex', alignItems: 'center', width: '80%'}}>
                 <SearchRounded sx={{ mr: 1, my: 0.5 }} />
@@ -208,9 +208,8 @@ function App() {
               </Box>
 
               {/* Add user */}
-              <Button onClick={() => openCreateModal()} size='small' variant='contained' sx={{textTransform: 'none', display: 'flex', justifyContent:'center', alignItems: 'center', gap: 1, width:'20%'}}>
-                <Plus size={18}/>
-                Add a user
+              <Button onClick={() => openCreateModal()} size='small' variant='contained' sx={{textTransform: 'none', display: 'flex', justifyContent:'center', alignItems: 'center', gap: 1, flexWrap: 'nowrap', textWrap: 'nowrap'}}>
+                <Plus size={18}/> Add a user
               </Button>
             </Box>
           </Box>
