@@ -45,6 +45,9 @@ function App() {
   // Search Bar
   const [search, setSearch] = useState('');
 
+  // Filters
+  const [userRoleFilter, setUserRoleFilter] = useState('');
+
   // Modals
   // Create User Modal
   const [CreateModal, setCreateModal] = useState(false);
@@ -135,7 +138,8 @@ function App() {
   const fetchUsers = () => {
     axios.get("http://localhost:5001/user/get-users", {
       params: {
-        searchFullName: search
+        searchFullName: search,
+        getByUserRole: userRoleFilter
       }
     })
     .then((res) => { setUserData(res.data.result.reverse()) })
@@ -185,7 +189,7 @@ function App() {
   // Run's every runtime.
   useEffect(() => {
       fetchUsers();
-  }, [search]);
+  }, [search, userRoleFilter]);
   
   return (
     // Main Container
@@ -206,11 +210,33 @@ function App() {
                 <SearchRounded sx={{ mr: 1, my: 0.5 }} />
                 <TextField  InputLabelProps={{ style: { fontSize: '12px' } }} InputProps={{ style: { fontSize: '12px' } }} value={search} onChange={(e) => setSearch(e.target.value)} sx={{width: '100%'}} size='small' id="input-with-sx" label="Search a user.." variant="outlined" />
               </Box>
+              
+              <Box sx={{display: 'flex', alignItems: 'center', gap: 1}}>
+                {/* User role filter */}
+                <FormControl sx={{flexGrow: 1}} size="small">
+                  <InputLabel sx={{fontSize: '12px'}} id="demo-select-small-label">User role</InputLabel>
+                  <Select
+                    sx={{fontSize: '12px'}}
+                    size='small'
+                    labelId="demo-select-small-label"
+                    id="demo-select-small"
+                    label="User role"
+                    value={userRoleFilter}
+                    onChange={(e) => setUserRoleFilter(e.target.value)}
+                  >
+                    <MenuItem sx={{fontSize: '12px'}}  value="">
+                      <em>None</em>
+                    </MenuItem>
+                    <MenuItem sx={{fontSize: '12px'}} value="User">User</MenuItem>
+                    <MenuItem sx={{fontSize: '12px'}} value="Supervisor">Supervisor</MenuItem>
+                  </Select>
+                </FormControl>              
 
-              {/* Add user */}
-              <Button onClick={() => openCreateModal()} size='small' variant='contained' sx={{textTransform: 'none', display: 'flex', justifyContent:'center', alignItems: 'center', gap: 1, flexWrap: 'nowrap', textWrap: 'nowrap'}}>
-                <Plus size={18}/> Add a user
-              </Button>
+                {/* Add user */}
+                <Button onClick={() => openCreateModal()} size='small' variant='contained' sx={{textTransform: 'none', flexGrow:1, display: 'flex', justifyContent:'center', alignItems: 'center', gap: 1, flexWrap: 'nowrap', textWrap: 'nowrap'}}>
+                  <Plus size={18}/> Add a user
+                </Button>
+              </Box>
             </Box>
           </Box>
 
